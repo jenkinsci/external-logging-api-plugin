@@ -25,6 +25,22 @@ services:
     expose:
       - "8080"
       - "9000"
+  jenkinsDebug:
+    image: jenkins/demo-external-task-logging-elk:latest
+    container_name: jenkins
+    links:
+      - elk
+    environment:
+      - JAVA_OPTS=-Dio.jenkins.demo.external-task-logging-elk.enabled=true -Djenkins.install.runSetupWizard=false
+      - DEBUG=true
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+      - "5005:5005"
+    expose:
+      - "8080"
+      - "9000"
+      - "5005"
   agent:
     image: cloudbees/jnlp-slave-with-java-build-tools:2.2.0
     links:

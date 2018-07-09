@@ -6,7 +6,7 @@ bundle:
   description: "Jenkins External Task Logging demo for Elasticsearch, packaged as a single WAR file. It automatically configures logging on startup"
 buildSettings:
   docker:
-    base: "jenkins/jenkins:2.121.1"
+    base: "jenkins/jenkins:2.130"
     tag: "jenkins/demo-external-task-logging-elk"
     build: true
 war:
