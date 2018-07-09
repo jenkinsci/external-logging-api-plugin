@@ -35,4 +35,13 @@ public class Event {
     public Map<String, Object> getData() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return String.format("[%d] - %s", timestamp, message);
+    }
+
+    public String toStringWithData() {
+        return String.format("[%d] - %s: %s", timestamp, message, data);
+    }
 }

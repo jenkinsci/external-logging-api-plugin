@@ -77,7 +77,7 @@ public class ExternalPipelineLogStorage implements LogStorage {
         final LoggingMethod loggingMethod = LoggingMethodLocator.locate(run);
         if (loggingMethod instanceof ExternalLoggingMethod) {
             ExternalLoggingMethod lm = (ExternalLoggingMethod)loggingMethod;
-            return new PipelineListener(run, lm);
+            return new PipelineListener(run, flowNode, lm);
         }
 
         // Else - not configured
