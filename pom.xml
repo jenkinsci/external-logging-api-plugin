@@ -22,6 +22,7 @@
   <modules>
     <module>external-logging-api</module>
     <module>external-logging-elasticsearch</module>
+    <!--<module>demo</module>-->
   </modules>
   
   <repositories>
