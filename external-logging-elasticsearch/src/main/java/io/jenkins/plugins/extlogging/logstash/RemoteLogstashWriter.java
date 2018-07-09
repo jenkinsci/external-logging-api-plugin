@@ -14,6 +14,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +45,13 @@ public class RemoteLogstashWriter extends ExternalLoggingEventWriter {
     public void writeEvent(Event event) {
         JSONObject payload = dao.buildPayload(buildData, jenkinsUrl,
                 Collections.singletonList(event.getMessage()));
-        // TODO: append custom data passed in the event
+        // TODO: replace Dao implementation by an independent one
+        JSONObject data = payload.getJSONObject("data");
+        for (Map.Entry<String, Object> entry : event.getData().entrySet()) {
+            Object value = entry.getValue();
+            data.put(entry.getKey(), value != null ? value.toString() : null);
+        }
+
         try {
             dao.push(payload.toString());
         } catch (IOException e) {

@@ -7,7 +7,6 @@ import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration
 import io.jenkins.plugins.extlogging.api.util.MockExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowser;
 import io.jenkins.plugins.extlogging.api.util.MockLoggingMethod;
-import jenkins.model.GlobalConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,7 +30,7 @@ public class FreestyleJobTest {
 
     @Before
     public void setup() throws Exception {
-        ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.get();
+        ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.getInstance();
         loggingMethod = new MockLoggingMethod(tmpDir.newFolder("logs"));
         cfg.setLoggingMethod(loggingMethod);
         cfg.setLogBrowser(new MockLogBrowser());

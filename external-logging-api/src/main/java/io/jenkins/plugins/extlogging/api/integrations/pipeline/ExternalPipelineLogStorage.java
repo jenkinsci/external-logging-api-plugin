@@ -28,10 +28,13 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.SensitiveStringsProvider;
+import io.jenkins.plugins.extlogging.api.util.UniqueIdHelper;
 import jenkins.model.logging.LoggingMethod;
 import jenkins.model.logging.LoggingMethodLocator;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -51,49 +54,38 @@ import java.util.Collection;
 public class ExternalPipelineLogStorage implements LogStorage {
 
     private final ExternalLoggingMethod lm;
+    private final ExternalLogBrowser logBrowser;
     private final WorkflowRun run;
 
-    ExternalPipelineLogStorage(@Nonnull WorkflowRun run, @Nonnull ExternalLoggingMethod lm) {
+    ExternalPipelineLogStorage(@Nonnull WorkflowRun run, @Nonnull ExternalLoggingMethod lm, @Nonnull ExternalLogBrowser browser) {
         this.run = run;
         this.lm = lm;
+        this.logBrowser = browser;
     }
 
     @Nonnull
     @Override
     public BuildListener overallListener() throws IOException, InterruptedException {
-        final LoggingMethod loggingMethod = LoggingMethodLocator.locate(run);
-        if (loggingMethod instanceof ExternalLoggingMethod) {
-            ExternalLoggingMethod lm = (ExternalLoggingMethod)loggingMethod;
-            return new PipelineListener(run, lm);
-        }
-
-        // Else - not configured
-        return null;
+        return new PipelineListener(run, lm);
     }
 
     @Nonnull
     @Override
     public TaskListener nodeListener(@Nonnull FlowNode flowNode) throws IOException, InterruptedException {
-        final LoggingMethod loggingMethod = LoggingMethodLocator.locate(run);
-        if (loggingMethod instanceof ExternalLoggingMethod) {
-            ExternalLoggingMethod lm = (ExternalLoggingMethod)loggingMethod;
-            return new PipelineListener(run, flowNode, lm);
-        }
-
-        // Else - not configured
-        return null;
+        return new PipelineListener(run, flowNode, lm);
     }
 
     @Nonnull
     @Override
     public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(@Nonnull FlowExecutionOwner.Executable executable, boolean b) {
-        return null;
+        //TODO: Handle executable? Why is it needed at all?
+        return logBrowser.overallLog((WorkflowRun)executable, b);
     }
 
     @Nonnull
     @Override
     public AnnotatedLargeText<FlowNode> stepLog(@Nonnull FlowNode flowNode, boolean b) {
-        return null;
+        return logBrowser.stepLog(run, flowNode.getId(), b);
     }
 
 
@@ -108,16 +100,16 @@ public class ExternalPipelineLogStorage implements LogStorage {
         PipelineListener(WorkflowRun run, ExternalLoggingMethod method) {
             this.writer = method.createWriter(run);
             this.sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings(run);
-
-
+            writer.addMetadataEntry("jobId", UniqueIdHelper.getOrCreateId(run.getParent()));
         }
 
         PipelineListener(WorkflowRun run, FlowNode node, ExternalLoggingMethod method) {
             this(run, method);
-            writer.addMetadataEntry("flowNodeId", node.getId());
+            writer.addMetadataEntry("stepId", node.getId());
         }
 
-        @Override public PrintStream getLogger() {
+        @Override
+        public PrintStream getLogger() {
             if (logger == null) {
                 logger = new PrintStream(ExternalLoggingOutputStream.createOutputStream(writer, sensitiveStrings));
             }

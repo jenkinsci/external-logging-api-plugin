@@ -8,8 +8,10 @@ import java.util.List;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
+import io.jenkins.plugins.extlogging.elasticsearch.ElasticsearchLogBrowser;
 import jenkins.model.logging.LogBrowser;
 import jenkins.plugins.logstash.LogstashConfiguration;
+import jenkins.plugins.logstash.persistence.ElasticSearchDao;
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
 
 import javax.annotation.CheckForNull;
@@ -26,6 +28,10 @@ public class LogstashDaoLoggingMethod extends ExternalLoggingMethod {
     @CheckForNull
     @Override
     public LogBrowser getDefaulLogBrowser() {
+        LogstashIndexerDao dao = LogstashConfiguration.getInstance().getIndexerInstance();
+        if (dao instanceof ElasticSearchDao) {
+            return new ElasticsearchLogBrowser();
+        }
         return null;
     }
 
@@ -43,8 +49,6 @@ public class LogstashDaoLoggingMethod extends ExternalLoggingMethod {
         // TODO: implement
         return null;
     }
-
-
 
     private static class LogstashOutputStreamWrapper implements OutputStreamWrapper {
 

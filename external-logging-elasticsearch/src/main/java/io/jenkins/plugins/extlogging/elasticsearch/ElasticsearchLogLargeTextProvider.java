@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 
-import io.jenkins.plugins.extlogging.api.util.AbstractConsoleAction;
 import io.jenkins.plugins.extlogging.api.util.UniqueIdHelper;
 import io.jenkins.plugins.extlogging.elasticsearch.util.HttpGetWithData;
 import jenkins.model.Jenkins;
@@ -52,28 +52,23 @@ import org.kohsuke.stapler.framework.io.ByteBuffer;
  * @author Oleg Nenashev
  */
 @Restricted(NoExternalUse.class)
-public class ElasticsearchLogAction extends AbstractConsoleAction {
-    
-    public ElasticsearchLogAction(Run run) {
-        super(run);
+public class ElasticsearchLogLargeTextProvider {
+
+    @Nonnull
+    private Run run;
+
+    @CheckForNull
+    private String stepId;
+
+    public ElasticsearchLogLargeTextProvider(Run<?, ?> run) {
+        this(run, null);
+    }
+
+    public ElasticsearchLogLargeTextProvider(Run<?, ?> run, String stepId) {
+        this.run = run;
     }
 
     private transient HttpClientBuilder clientBuilder;
-    
-    @Override
-    public String getIconFileName() {
-        return "terminal.png";
-    }
-
-    @Override
-    public String getUrlName() {
-        return "externalLog";
-    } 
-
-    @Override
-    public String getDataSourceDisplayName() {
-        return "Elasticsearch";
-    }
 
     /**
      * Used from <tt>index.jelly</tt> to write annotated log to the given
@@ -108,7 +103,7 @@ public class ElasticsearchLogAction extends AbstractConsoleAction {
         } catch (IOException ex) {
             buf = new ByteBuffer();
         }
-        return new UncompressedAnnotatedLargeText(buf, StandardCharsets.UTF_8, !isLogUpdated(), this);
+        return new UncompressedAnnotatedLargeText(buf, StandardCharsets.UTF_8, !run.isLogUpdated(), this);
     }
     
     /**
@@ -124,7 +119,7 @@ public class ElasticsearchLogAction extends AbstractConsoleAction {
         ElasticSearchDao esDao = (ElasticSearchDao)dao;
         
         ByteBuffer buffer = new ByteBuffer();
-        Collection<String> pulledLogs = pullLogs(getRun(), esDao,0, Long.MAX_VALUE);
+        Collection<String> pulledLogs = pullLogs(esDao,0, Long.MAX_VALUE);
         long ctr = 0;
         for (String logEntry : pulledLogs) {
             byte[] bytes = logEntry.getBytes();
@@ -136,7 +131,7 @@ public class ElasticsearchLogAction extends AbstractConsoleAction {
         return buffer;
     }
 
-    private Collection<String> pullLogs(Run run, ElasticSearchDao dao, long sinceMs, long toMs) throws IOException {
+    private Collection<String> pullLogs(ElasticSearchDao dao, long sinceMs, long toMs) throws IOException {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
 
@@ -151,6 +146,9 @@ public class ElasticsearchLogAction extends AbstractConsoleAction {
                 "    \"bool\": { \n" +
                 "      \"must\": [\n" +
                 "        { \"match\": { \"data.jobId\":   \"" + jobId + "\"}}, \n" +
+                (stepId != null ?
+                "        { \"match\": { \"data.stepId\": \"" + stepId + "\" }},  \n"
+                : "") +
                 "        { \"match\": { \"data.buildNum\": \"" + run.getNumber() + "\" }}  \n" +
                 "      ]\n" +
                 "    }\n" +

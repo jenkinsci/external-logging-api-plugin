@@ -1,9 +1,6 @@
 package io.jenkins.plugins.extlogging.api;
 
-import hudson.model.FreeStyleBuild;
-import hudson.model.FreeStyleProject;
 import hudson.model.Run;
-import hudson.tasks.Shell;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration;
 import io.jenkins.plugins.extlogging.api.util.MockExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowser;
@@ -33,7 +30,7 @@ public class PipelineSmokeTest {
 
     @Before
     public void setup() throws Exception {
-        ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.get();
+        ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.getInstance();
         loggingMethod = new MockLoggingMethod(tmpDir.newFolder("logs"));
         cfg.setLoggingMethod(loggingMethod);
         cfg.setLogBrowser(new MockLogBrowser());

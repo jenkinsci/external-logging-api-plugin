@@ -25,7 +25,7 @@ public class ExternalLoggingGlobalConfiguration extends GlobalConfiguration {
     private LogBrowser logBrowser;
 
     @Nonnull
-    public static ExternalLoggingGlobalConfiguration get() {
+    public static ExternalLoggingGlobalConfiguration getInstance() {
         ExternalLoggingGlobalConfiguration cfg = GlobalConfiguration.all().get(ExternalLoggingGlobalConfiguration.class);
         return cfg != null ? cfg : DEFAULT;
     }

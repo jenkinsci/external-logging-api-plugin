@@ -4,8 +4,11 @@ import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.Run;
 import hudson.model.queue.SubTask;
+import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.integrations.MaskPasswordsSensitiveStringsProvider.MaskSensitiveStringsProvider;
+import jenkins.model.GlobalConfiguration;
+import jenkins.model.logging.LogBrowser;
 import jenkins.model.logging.LoggingMethod;
 import jenkins.model.logging.LoggingMethodLocator;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -34,9 +37,8 @@ public class ExternalPipelineLogStorageFactory implements LogStorageFactory {
         final WorkflowRun run;
         try {
             final Queue.Executable executable = flowExecutionOwner.getExecutable();
-            final SubTask task = executable.getParent();
-            if (task instanceof Run) {
-                Run r = (Run)task;
+            if (executable instanceof Run) {
+                Run r = (Run)executable;
                 if (r instanceof WorkflowRun) {
                     run = (WorkflowRun) r;
                 } else {
@@ -53,7 +55,10 @@ public class ExternalPipelineLogStorageFactory implements LogStorageFactory {
         final LoggingMethod loggingMethod = LoggingMethodLocator.locate(run);
         if (loggingMethod instanceof ExternalLoggingMethod) {
             ExternalLoggingMethod lm = (ExternalLoggingMethod)loggingMethod;
-            return new ExternalPipelineLogStorage(run, lm);
+
+            // TODO: Support configuration, type check
+            LogBrowser browser = lm.getDefaulLogBrowser();
+            return new ExternalPipelineLogStorage(run, lm, (ExternalLogBrowser) browser);
         }
 
         return null;
