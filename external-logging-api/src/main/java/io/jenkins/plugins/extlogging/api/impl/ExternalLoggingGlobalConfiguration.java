@@ -4,6 +4,7 @@ import hudson.Extension;
 import io.jenkins.plugins.extlogging.api.ExternalLogBrowserFactory;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethodFactory;
 import jenkins.model.GlobalConfiguration;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.CheckForNull;
@@ -15,6 +16,7 @@ import javax.annotation.Nonnull;
  * @since TODO
  */
 @Extension
+@Symbol("externalLogging")
 public class ExternalLoggingGlobalConfiguration extends GlobalConfiguration {
 
     private static final ExternalLoggingGlobalConfiguration DEFAULT = new DefaultExternalLoggingGlobalConfiguration();
