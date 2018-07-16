@@ -1,14 +1,15 @@
 package io.jenkins.plugins.extlogging.api.impl;
 
 import hudson.Extension;
-import jdk.nashorn.internal.objects.Global;
+import io.jenkins.plugins.extlogging.api.ExternalLogBrowserFactory;
+import io.jenkins.plugins.extlogging.api.ExternalLoggingMethodFactory;
 import jenkins.model.GlobalConfiguration;
-import jenkins.model.logging.LogBrowser;
-import jenkins.model.logging.LoggingMethod;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+//TODO: support global configuration
 /**
  * @author Oleg Nenashev
  * @since TODO
@@ -19,10 +20,10 @@ public class ExternalLoggingGlobalConfiguration extends GlobalConfiguration {
     private static final ExternalLoggingGlobalConfiguration DEFAULT = new DefaultExternalLoggingGlobalConfiguration();
 
     @CheckForNull
-    private LoggingMethod loggingMethod;
+    private ExternalLoggingMethodFactory loggingMethod;
 
     @CheckForNull
-    private LogBrowser logBrowser;
+    private ExternalLogBrowserFactory logBrowser;
 
     @Nonnull
     public static ExternalLoggingGlobalConfiguration getInstance() {
@@ -34,23 +35,25 @@ public class ExternalLoggingGlobalConfiguration extends GlobalConfiguration {
         load();
     }
 
-    public void setLogBrowser(@CheckForNull LogBrowser logBrowser) {
+    @DataBoundSetter
+    public void setLogBrowser(@CheckForNull ExternalLogBrowserFactory logBrowser) {
         this.logBrowser = logBrowser;
         this.save();
     }
 
-    public void setLoggingMethod(@CheckForNull LoggingMethod loggingMethod) {
+    @DataBoundSetter
+    public void setLoggingMethod(@CheckForNull ExternalLoggingMethodFactory loggingMethod) {
         this.loggingMethod = loggingMethod;
         this.save();
     }
 
     @CheckForNull
-    public LogBrowser getLogBrowser() {
+    public ExternalLogBrowserFactory getLogBrowser() {
         return logBrowser;
     }
 
     @CheckForNull
-    public LoggingMethod getLoggingMethod() {
+    public ExternalLoggingMethodFactory getLoggingMethod() {
         return loggingMethod;
     }
 

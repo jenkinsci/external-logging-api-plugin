@@ -5,16 +5,18 @@ import hudson.model.TaskListener;
 import java.io.OutputStream;
 import java.util.List;
 
-import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.elasticsearch.ElasticsearchLogBrowser;
 import jenkins.model.logging.LogBrowser;
+import jenkins.model.logging.Loggable;
 import jenkins.plugins.logstash.LogstashConfiguration;
 import jenkins.plugins.logstash.persistence.ElasticSearchDao;
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
  * Perform logging to {@link LogstashIndexerDao}.
@@ -23,26 +25,36 @@ import javax.annotation.CheckForNull;
  */
 public class LogstashDaoLoggingMethod extends ExternalLoggingMethod {
 
-    String prefix;
-
     @CheckForNull
+    private final String prefix;
+
+    public LogstashDaoLoggingMethod(Run<?, ?> run, @CheckForNull String prefix) {
+        super(run);
+        this.prefix = prefix;
+    }
+
     @Override
-    public LogBrowser getDefaulLogBrowser() {
+    protected Run<?, ?> getOwner() {
+        return (Run<?, ?>)super.getOwner();
+    }
+
+    @Override
+    public LogBrowser getDefaultLogBrowser() {
         LogstashIndexerDao dao = LogstashConfiguration.getInstance().getIndexerInstance();
         if (dao instanceof ElasticSearchDao) {
-            return new ElasticsearchLogBrowser();
+            return new ElasticsearchLogBrowser(getOwner());
         }
         return null;
     }
 
     @Override
-    public ExternalLoggingEventWriter createWriter(Run run) {
+    public ExternalLoggingEventWriter createWriter() {
         LogstashIndexerDao dao = LogstashConfiguration.getInstance().getIndexerInstance();
-        return new RemoteLogstashWriter(run, TaskListener.NULL, prefix, dao);
+        return new RemoteLogstashWriter(getOwner(), TaskListener.NULL, prefix, dao);
     }
 
     @Override
-    public OutputStream decorateLogger(Run run, OutputStream logger) {
+    public OutputStream decorateLogger(OutputStream logger) {
       //  LogstashWriter logstash = new LogstashWriter(run, TaskListener.NULL, logger, prefix);
       //  RemoteLogstashOutputStream los = new RemoteLogstashOutputStream(logstash, "prefix");
       //  return los.maskPasswords(SensitiveStringsProvider.getAllSensitiveStrings(run));
@@ -62,11 +74,6 @@ public class LogstashDaoLoggingMethod extends ExternalLoggingMethod {
 
         public Object readResolve() {
             return ExternalLoggingOutputStream.createOutputStream(wr, passwordStrings);
-        }
-
-        @Override
-        public OutputStream toRawOutputStream() {
-            return toSerializableOutputStream();
         }
 
         @Override

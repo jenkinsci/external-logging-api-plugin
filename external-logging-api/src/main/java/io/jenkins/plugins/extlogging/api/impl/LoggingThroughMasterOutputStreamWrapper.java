@@ -18,11 +18,6 @@ public class LoggingThroughMasterOutputStreamWrapper implements LoggingMethod.Ou
     }
 
     @Override
-    public OutputStream toRawOutputStream() {
-        return ostream;
-    }
-
-    @Override
     public OutputStream toSerializableOutputStream() {
         return new RemoteOutputStream(ostream);
     }

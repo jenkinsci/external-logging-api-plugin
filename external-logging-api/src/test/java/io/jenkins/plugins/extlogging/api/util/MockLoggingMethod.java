@@ -1,7 +1,7 @@
 package io.jenkins.plugins.extlogging.api.util;
 
 import hudson.model.Run;
-import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import jenkins.model.logging.LogBrowser;
 
@@ -9,7 +9,6 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 
 /**
  * @author Oleg Nenashev
@@ -17,41 +16,42 @@ import java.util.HashMap;
  */
 public class MockLoggingMethod extends ExternalLoggingMethod {
 
-    File baseDir;
-    transient HashMap<Run, MockExternalLoggingEventWriter> writers;
+    private File baseDir;
+    transient MockExternalLoggingEventWriter writer;
 
-    public MockLoggingMethod(File baseDir) {
+    public MockLoggingMethod(Run<?,?> run, File baseDir) {
+        super(run);
         this.baseDir = baseDir;
     }
 
     @Override
-    public ExternalLoggingEventWriter createWriter(Run run) {
-        final MockExternalLoggingEventWriter writer;
-        try {
-            writer = new MockExternalLoggingEventWriter(new File(baseDir, run.getFullDisplayName() + ".txt"));
-        } catch (IOException ex) {
-            throw new AssertionError(ex);
-        }
-        writers.put(run, writer);
-        return writer;
-    }
-
-    public HashMap<Run, MockExternalLoggingEventWriter> getWriters() {
-        return writers;
-    }
-
-    public MockExternalLoggingEventWriter getWriter(Run run) {
-        return writers.get(run);
+    protected Run<?, ?> getOwner() {
+        return (Run)super.getOwner();
     }
 
     @Override
-    public OutputStream decorateLogger(Run run, OutputStream logger) {
+    public ExternalLoggingEventWriter createWriter() {
+        try {
+            writer = new MockExternalLoggingEventWriter(new File(baseDir, getOwner().getFullDisplayName() + ".txt"));
+        } catch (IOException ex) {
+            throw new AssertionError(ex);
+        }
+        return writer;
+    }
+
+
+    public MockExternalLoggingEventWriter getWriter() {
+        return writer;
+    }
+
+    @Override
+    public OutputStream decorateLogger(OutputStream logger) {
         throw new AssertionError("Not Implemented");
     }
 
     @CheckForNull
     @Override
-    public LogBrowser getDefaulLogBrowser() {
-        return new MockLogBrowser();
+    public LogBrowser getDefaultLogBrowser() {
+        return new MockLogBrowser(getOwner(), baseDir);
     }
 }

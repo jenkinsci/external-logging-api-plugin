@@ -28,15 +28,12 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
-import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
-import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
-import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.SensitiveStringsProvider;
 import io.jenkins.plugins.extlogging.api.util.UniqueIdHelper;
-import jenkins.model.logging.LoggingMethod;
-import jenkins.model.logging.LoggingMethodLocator;
+import jenkins.model.logging.LogBrowser;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -54,10 +51,10 @@ import java.util.Collection;
 public class ExternalPipelineLogStorage implements LogStorage {
 
     private final ExternalLoggingMethod lm;
-    private final ExternalLogBrowser logBrowser;
+    private final LogBrowser logBrowser;
     private final WorkflowRun run;
 
-    ExternalPipelineLogStorage(@Nonnull WorkflowRun run, @Nonnull ExternalLoggingMethod lm, @Nonnull ExternalLogBrowser browser) {
+    ExternalPipelineLogStorage(@Nonnull WorkflowRun run, @Nonnull ExternalLoggingMethod lm, @Nonnull LogBrowser browser) {
         this.run = run;
         this.lm = lm;
         this.logBrowser = browser;
@@ -77,15 +74,15 @@ public class ExternalPipelineLogStorage implements LogStorage {
 
     @Nonnull
     @Override
-    public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(@Nonnull FlowExecutionOwner.Executable executable, boolean b) {
+    public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(@Nonnull FlowExecutionOwner.Executable executable, boolean completed) {
         //TODO: Handle executable? Why is it needed at all?
-        return logBrowser.overallLog((WorkflowRun)executable, b);
+        return logBrowser.overallLog();
     }
 
     @Nonnull
     @Override
-    public AnnotatedLargeText<FlowNode> stepLog(@Nonnull FlowNode flowNode, boolean b) {
-        return logBrowser.stepLog(run, flowNode.getId(), b);
+    public AnnotatedLargeText<FlowNode> stepLog(@Nonnull FlowNode flowNode, boolean completed) {
+        return logBrowser.stepLog(flowNode.getId(), completed);
     }
 
 
@@ -98,7 +95,7 @@ public class ExternalPipelineLogStorage implements LogStorage {
         private transient PrintStream logger;
 
         PipelineListener(WorkflowRun run, ExternalLoggingMethod method) {
-            this.writer = method.createWriter(run);
+            this.writer = method.createWriter();
             this.sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings(run);
             writer.addMetadataEntry("jobId", UniqueIdHelper.getOrCreateId(run.getParent()));
         }

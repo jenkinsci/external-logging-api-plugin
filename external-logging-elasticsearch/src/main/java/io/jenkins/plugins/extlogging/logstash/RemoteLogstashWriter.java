@@ -4,13 +4,14 @@ package io.jenkins.plugins.extlogging.logstash;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.extlogging.api.Event;
-import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import jenkins.model.Jenkins;
 import jenkins.plugins.logstash.persistence.BuildData;
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -23,10 +24,11 @@ public class RemoteLogstashWriter extends ExternalLoggingEventWriter {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(RemoteLogstashWriter.class.getName());
 
-    final String prefix;
-    final BuildData buildData;
-    final String jenkinsUrl;
-    LogstashIndexerDao dao;
+    @CheckForNull
+    private final String prefix;
+    private final BuildData buildData;
+    private final String jenkinsUrl;
+    private final LogstashIndexerDao dao;
     private boolean connectionBroken;
 
     public RemoteLogstashWriter(Run run, TaskListener listener, String prefix, LogstashIndexerDao dao) {

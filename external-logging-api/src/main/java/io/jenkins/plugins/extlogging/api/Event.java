@@ -41,6 +41,10 @@ public class Event {
         return String.format("[%d] - %s", timestamp, message);
     }
 
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
+
     public String toStringWithData() {
         return String.format("[%d] - %s: %s", timestamp, message, data);
     }

@@ -4,14 +4,18 @@ import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 
 import hudson.model.TaskListener;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.impl.LoggingThroughMasterOutputStreamWrapper;
+import jenkins.model.logging.Loggable;
 import jenkins.model.logging.LoggingMethod;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
  * Implements External logging method and simplifies API.
@@ -20,8 +24,19 @@ import javax.annotation.CheckForNull;
  */
 public abstract class ExternalLoggingMethod extends LoggingMethod {
 
+    public ExternalLoggingMethod(@Nonnull Loggable loggable) {
+        super(loggable);
+    }
+
+    //TODO: imple
+    @CheckForNull
     @Override
-    public ConsoleLogFilter createLoggerDecorator(Run<?, ?> run) {
+    public TaskListener createTaskListener() {
+        return null;
+    }
+
+    @Override
+    public ConsoleLogFilter createLoggerDecorator() {
         return new ConsoleLogFilter() {
             @Override
             public OutputStream decorateLogger(Run run, OutputStream logger) throws IOException, InterruptedException {
@@ -30,42 +45,41 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         };
     }
 
-    public final OutputStream createOutputStream(Run run) {
-        final ExternalLoggingEventWriter writer = createWriter(run);
-        final List<String> sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings(run);
+    private final OutputStream createOutputStream() {
+        final ExternalLoggingEventWriter writer = createWriter();
+
+        final List<String> sensitiveStrings;
+        if (getOwner() instanceof Run<?, ?>) {
+            sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings((Run<?, ?>)getOwner());
+        } else {
+            sensitiveStrings = Collections.emptyList();
+        }
         return ExternalLoggingOutputStream.createOutputStream(writer, sensitiveStrings);
     }
 
     /**
      * Creates Remotable wrapper.
      * By default, logging happens through master unless there is a custom implementation.
-     * @param run Run
      * @return Remotable wrapper
      */
-    public OutputStreamWrapper createWrapper(Run run) {
-        //TODO: capture agent in API to allow overrides with checks
-        return new LoggingThroughMasterOutputStreamWrapper(createOutputStream(run));
-    }
-
     @CheckForNull
-    @Override
-    public TaskListener createTaskListener(Run<?, ?> run) {
-        //TODO: task listener implementation
-        return null;
+    public OutputStreamWrapper createWrapper() {
+        //TODO: capture agent in API to allow overrides with checks
+        return new LoggingThroughMasterOutputStreamWrapper(createOutputStream());
     }
 
-    public abstract ExternalLoggingEventWriter createWriter(Run run);
+    public abstract ExternalLoggingEventWriter createWriter();
 
-    public abstract OutputStream decorateLogger(Run run, OutputStream logger);
+    public abstract OutputStream decorateLogger(OutputStream logger);
 
     @Override
-    public OutputStreamWrapper provideOutStream(Run run) {
-        return createWrapper(run);
+    public OutputStreamWrapper provideRemotableOutStream() {
+        return createWrapper();
     }
 
     @Override
-    public OutputStreamWrapper provideErrStream(Run run) {
-        return createWrapper(run);
+    public OutputStreamWrapper provideRemotableErrStream() {
+        return createWrapper();
     }
 
 }

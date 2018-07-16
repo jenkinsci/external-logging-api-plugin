@@ -1,7 +1,10 @@
 package io.jenkins.plugins.extlogging.api.impl;
 
 import hudson.Extension;
-import hudson.model.Run;
+import io.jenkins.plugins.extlogging.api.ExternalLogBrowserFactory;
+import io.jenkins.plugins.extlogging.api.ExternalLoggingMethodFactory;
+import jenkins.model.logging.LogBrowser;
+import jenkins.model.logging.Loggable;
 import jenkins.model.logging.LoggingMethod;
 import jenkins.model.logging.LoggingMethodLocator;
 
@@ -16,8 +19,21 @@ public class ExternalLoggingMethodLocator extends LoggingMethodLocator {
 
     @CheckForNull
     @Override
-    protected LoggingMethod getLoggingMethod(Run run) {
-        return ExternalLoggingGlobalConfiguration.getInstance().getLoggingMethod();
+    protected LoggingMethod getLoggingMethod(Loggable loggable) {
+        ExternalLoggingMethodFactory factory = ExternalLoggingGlobalConfiguration.getInstance().getLoggingMethod();
+        if (factory != null) {
+            return factory.create(loggable);
+        }
+        return null;
     }
 
+    @CheckForNull
+    @Override
+    protected LogBrowser getLogBrowser(Loggable loggable) {
+        ExternalLogBrowserFactory factory = ExternalLoggingGlobalConfiguration.getInstance().getLogBrowser();
+        if (factory != null) {
+            return factory.create(loggable);
+        }
+        return null;
+    }
 }

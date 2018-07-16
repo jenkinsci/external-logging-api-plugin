@@ -4,7 +4,9 @@ import hudson.model.Run;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration;
 import io.jenkins.plugins.extlogging.api.util.MockExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowser;
+import io.jenkins.plugins.extlogging.api.util.MockLogBrowserFactory;
 import io.jenkins.plugins.extlogging.api.util.MockLoggingMethod;
+import io.jenkins.plugins.extlogging.api.util.MockLoggingMethodFactory;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Assert;
@@ -13,6 +15,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.JenkinsRule;
+
+import java.io.File;
 
 /**
  * @author Oleg Nenashev
@@ -26,14 +30,16 @@ public class PipelineSmokeTest {
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private MockLoggingMethod loggingMethod;
+    private MockLoggingMethodFactory loggingMethodFactory;
+
 
     @Before
     public void setup() throws Exception {
         ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.getInstance();
-        loggingMethod = new MockLoggingMethod(tmpDir.newFolder("logs"));
-        cfg.setLoggingMethod(loggingMethod);
-        cfg.setLogBrowser(new MockLogBrowser());
+        File logDir = tmpDir.newFolder("logs");
+        loggingMethodFactory = new MockLoggingMethodFactory(logDir);
+        cfg.setLoggingMethod(loggingMethodFactory);
+        cfg.setLogBrowser(new MockLogBrowserFactory(logDir));
     }
 
     @Test
@@ -42,7 +48,8 @@ public class PipelineSmokeTest {
         project.setDefinition(new CpsFlowDefinition("echo Hello", true));
 
         Run build = j.buildAndAssertSuccess(project);
-        MockExternalLoggingEventWriter writer = loggingMethod.getWriter(build);
+        MockLoggingMethod loggingMethod = (MockLoggingMethod)build.getLoggingMethod();
+        MockExternalLoggingEventWriter writer = loggingMethod.getWriter();
         Assert.assertTrue(writer.isEventWritten());
     }
 

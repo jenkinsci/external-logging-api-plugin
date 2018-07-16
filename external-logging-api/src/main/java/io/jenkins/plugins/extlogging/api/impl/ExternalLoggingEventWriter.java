@@ -1,4 +1,6 @@
-package io.jenkins.plugins.extlogging.api;
+package io.jenkins.plugins.extlogging.api.impl;
+
+import io.jenkins.plugins.extlogging.api.Event;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,7 +20,7 @@ public abstract class ExternalLoggingEventWriter extends Writer implements Seria
 
     public void writeMessage(String message) throws IOException {
         Event event = new Event(message);
-        event.data = metadata; // We do not copy the entry to save performance, custom implementations may need better logic
+        event.setData(metadata); // We do not copy the entry to save performance, custom implementations may need better logic
         writeEvent(event);
     }
 

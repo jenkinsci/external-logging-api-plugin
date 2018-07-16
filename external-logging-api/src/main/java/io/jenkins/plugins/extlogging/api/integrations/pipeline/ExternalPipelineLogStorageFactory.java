@@ -3,11 +3,8 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.Run;
-import hudson.model.queue.SubTask;
-import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.integrations.MaskPasswordsSensitiveStringsProvider.MaskSensitiveStringsProvider;
-import jenkins.model.GlobalConfiguration;
 import jenkins.model.logging.LogBrowser;
 import jenkins.model.logging.LoggingMethod;
 import jenkins.model.logging.LoggingMethodLocator;
@@ -15,6 +12,8 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.log.LogStorage;
 import org.jenkinsci.plugins.workflow.log.LogStorageFactory;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -23,9 +22,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Bridges Jenkins Core external logging API and Pipeline external logging API.
  * @author Oleg Nenashev
  * @since TODO
  */
+@Restricted(NoExternalUse.class)
 @Extension(optional = true)
 public class ExternalPipelineLogStorageFactory implements LogStorageFactory {
 
@@ -53,12 +54,12 @@ public class ExternalPipelineLogStorageFactory implements LogStorageFactory {
         }
 
         final LoggingMethod loggingMethod = LoggingMethodLocator.locate(run);
-        if (loggingMethod instanceof ExternalLoggingMethod) {
-            ExternalLoggingMethod lm = (ExternalLoggingMethod)loggingMethod;
+        final LogBrowser browser = LoggingMethodLocator.locateBrowser(run);
 
-            // TODO: Support configuration, type check
-            LogBrowser browser = lm.getDefaulLogBrowser();
-            return new ExternalPipelineLogStorage(run, lm, (ExternalLogBrowser) browser);
+        if (loggingMethod instanceof ExternalLoggingMethod) {
+            return new ExternalPipelineLogStorage(run,
+                    (ExternalLoggingMethod) loggingMethod,
+                    browser);
         }
 
         return null;

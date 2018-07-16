@@ -2,28 +2,33 @@ package io.jenkins.plugins.extlogging.elasticsearch;
 
 import hudson.console.AnnotatedLargeText;
 import hudson.model.Run;
-import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import jenkins.model.logging.LogBrowser;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 /**
  * @author Oleg Nenashev
  * @since TODO
  */
-public class ElasticsearchLogBrowser extends ExternalLogBrowser {
+public class ElasticsearchLogBrowser extends LogBrowser {
 
-    //TODO: Cache values instead of refreshing them each time
-    @Override
-    public AnnotatedLargeText overallLog(@Nonnull Run<?, ?> run, boolean b) {
-        return new ElasticsearchLogLargeTextProvider(run, null).getLogText();
+    public ElasticsearchLogBrowser(Run<?,?> run) {
+        super(run);
     }
 
     @Override
-    public AnnotatedLargeText stepLog(@Nonnull Run<?, ?> run, @CheckForNull String stepId, boolean b) {
-        return new ElasticsearchLogLargeTextProvider(run, stepId).getLogText();
+    protected Run<?, ?> getOwner() {
+        return (Run<?,?>)super.getOwner();
+    }
+
+    //TODO: Cache values instead of refreshing them each time
+    @Override
+    public AnnotatedLargeText overallLog() {
+        return new ElasticsearchLogLargeTextProvider(getOwner(), null).getLogText();
+    }
+
+    @Override
+    public AnnotatedLargeText stepLog(@CheckForNull String stepId, boolean b) {
+        return new ElasticsearchLogLargeTextProvider(getOwner(), stepId).getLogText();
     }
 }
