@@ -40,7 +40,7 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         return new ConsoleLogFilter() {
             @Override
             public OutputStream decorateLogger(Run run, OutputStream logger) throws IOException, InterruptedException {
-                return decorateLogger(run, logger);
+                return ExternalLoggingMethod.this.decorateLogger(logger);
             }
         };
     }

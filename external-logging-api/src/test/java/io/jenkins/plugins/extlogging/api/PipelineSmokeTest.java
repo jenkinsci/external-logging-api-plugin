@@ -7,6 +7,7 @@ import io.jenkins.plugins.extlogging.api.util.MockLogBrowser;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowserFactory;
 import io.jenkins.plugins.extlogging.api.util.MockLoggingMethod;
 import io.jenkins.plugins.extlogging.api.util.MockLoggingMethodFactory;
+import io.jenkins.plugins.extlogging.api.util.MockLoggingTestUtil;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Assert;
@@ -17,6 +18,10 @@ import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.File;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Oleg Nenashev
@@ -30,27 +35,27 @@ public class PipelineSmokeTest {
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private MockLoggingMethodFactory loggingMethodFactory;
-
-
-    @Before
-    public void setup() throws Exception {
-        ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.getInstance();
-        File logDir = tmpDir.newFolder("logs");
-        loggingMethodFactory = new MockLoggingMethodFactory(logDir);
-        cfg.setLoggingMethod(loggingMethodFactory);
-        cfg.setLogBrowser(new MockLogBrowserFactory(logDir));
+    @Test
+    public void spotcheck_Default() throws Exception {
+        WorkflowJob project = j.createProject(WorkflowJob.class);
+        project.setDefinition(new CpsFlowDefinition("echo 'Hello'", true));
+        Run build = j.buildAndAssertSuccess(project);
+        j.assertLogContains("Hello", build);
     }
 
     @Test
-    public void spotcheck_Master() throws Exception {
+    public void spotcheck_Mock() throws Exception {
+        MockLoggingTestUtil.setup(tmpDir);
         WorkflowJob project = j.createProject(WorkflowJob.class);
-        project.setDefinition(new CpsFlowDefinition("echo Hello", true));
+        project.setDefinition(new CpsFlowDefinition("echo 'Hello'", true));
 
         Run build = j.buildAndAssertSuccess(project);
+        assertThat(build.getLoggingMethod(), instanceOf(MockLoggingMethod.class));
         MockLoggingMethod loggingMethod = (MockLoggingMethod)build.getLoggingMethod();
         MockExternalLoggingEventWriter writer = loggingMethod.getWriter();
-        Assert.assertTrue(writer.isEventWritten());
+        // Do not try to add it. Pipeline creates separate PipelineLogListeners for each call
+        // Assert.assertTrue(writer.isEventWritten());
+        j.assertLogContains("Hello", build);
     }
 
 }

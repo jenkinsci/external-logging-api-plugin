@@ -30,6 +30,7 @@ public class ExternalLoggingGlobalConfiguration extends GlobalConfiguration {
     @Nonnull
     public static ExternalLoggingGlobalConfiguration getInstance() {
         ExternalLoggingGlobalConfiguration cfg = GlobalConfiguration.all().get(ExternalLoggingGlobalConfiguration.class);
+        assert cfg != null : "Global configuration should be present";
         return cfg != null ? cfg : DEFAULT;
     }
 

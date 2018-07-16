@@ -6,6 +6,8 @@ import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Oleg Nenashev
@@ -13,30 +15,24 @@ import java.io.IOException;
  */
 public class MockExternalLoggingEventWriter extends ExternalLoggingEventWriter {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(MockExternalLoggingEventWriter.class.getName());
+
     public File dest;
-    private FileWriter writer;
 
     // Debug flags
     private boolean eventWritten;
 
-    public MockExternalLoggingEventWriter(File dest) throws IOException {
+    public MockExternalLoggingEventWriter(File dest) {
         this.dest = dest;
-        this.writer = new FileWriter(dest);
     }
 
     @Override
     public void writeEvent(Event event) throws IOException {
         eventWritten = true;
-        writer.write(event.toStringWithData() + "\n");
-    }
-
-    @Override
-    public void flush() throws IOException {
+        FileWriter writer = new FileWriter(dest, true);
+        writer.write(event.toString() + "\n");
         writer.flush();
-    }
-
-    @Override
-    public void close() throws IOException {
         writer.close();
     }
 

@@ -8,6 +8,7 @@ import io.jenkins.plugins.extlogging.api.util.MockExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowserFactory;
 import io.jenkins.plugins.extlogging.api.util.MockLoggingMethod;
 import io.jenkins.plugins.extlogging.api.util.MockLoggingMethodFactory;
+import io.jenkins.plugins.extlogging.api.util.MockLoggingTestUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,19 +30,18 @@ public class FreestyleJobTest {
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private MockLoggingMethodFactory loggingMethodFactory;
+    @Test
+    public void spotcheck_Default() throws Exception {
+        FreeStyleProject project = j.createFreeStyleProject();
+        project.getBuildersList().add(new Shell("echo hello"));
 
-    @Before
-    public void setup() throws Exception {
-        ExternalLoggingGlobalConfiguration cfg = ExternalLoggingGlobalConfiguration.getInstance();
-        File logDir = tmpDir.newFolder("logs");
-        loggingMethodFactory = new MockLoggingMethodFactory(logDir);
-        cfg.setLoggingMethod(loggingMethodFactory);
-        cfg.setLogBrowser(new MockLogBrowserFactory(logDir));
+        FreeStyleBuild build = j.buildAndAssertSuccess(project);
+        j.assertLogContains("hello", build);
     }
 
     @Test
-    public void spotcheck() throws Exception {
+    public void spotcheck_Mock() throws Exception {
+        MockLoggingTestUtil.setup(tmpDir);
         FreeStyleProject project = j.createFreeStyleProject();
         project.getBuildersList().add(new Shell("echo hello"));
 
@@ -49,6 +49,7 @@ public class FreestyleJobTest {
         MockLoggingMethod lm = (MockLoggingMethod)build.getLoggingMethod();
         MockExternalLoggingEventWriter writer = lm.getWriter();
         Assert.assertTrue(writer.isEventWritten());
+        j.assertLogContains("hello", build);
     }
 
 }

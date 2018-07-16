@@ -43,12 +43,17 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
  * Integrates remote logging with Pipeline builds using an experimental API.
  */
 public class ExternalPipelineLogStorage implements LogStorage {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(ExternalPipelineLogStorage.class.getName());
 
     private final ExternalLoggingMethod lm;
     private final LogBrowser logBrowser;

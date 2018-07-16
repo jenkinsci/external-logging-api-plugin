@@ -33,4 +33,14 @@ public abstract class ExternalLoggingEventWriter extends Writer implements Seria
         String message = new String(cbuf, off, len);
         writeMessage(message);
     }
+
+    @Override
+    public void close() throws IOException {
+        // noop
+    }
+
+    @Override
+    public void flush() throws IOException {
+        // noop
+    }
 }

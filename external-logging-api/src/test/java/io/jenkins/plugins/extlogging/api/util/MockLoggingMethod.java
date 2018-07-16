@@ -31,22 +31,18 @@ public class MockLoggingMethod extends ExternalLoggingMethod {
 
     @Override
     public ExternalLoggingEventWriter createWriter() {
-        try {
-            writer = new MockExternalLoggingEventWriter(new File(baseDir, getOwner().getFullDisplayName() + ".txt"));
-        } catch (IOException ex) {
-            throw new AssertionError(ex);
-        }
+        writer = new MockExternalLoggingEventWriter(new File(baseDir, getOwner().getFullDisplayName() + ".txt"));
         return writer;
     }
 
-
+    @CheckForNull
     public MockExternalLoggingEventWriter getWriter() {
         return writer;
     }
 
     @Override
     public OutputStream decorateLogger(OutputStream logger) {
-        throw new AssertionError("Not Implemented");
+        return logger;
     }
 
     @CheckForNull
