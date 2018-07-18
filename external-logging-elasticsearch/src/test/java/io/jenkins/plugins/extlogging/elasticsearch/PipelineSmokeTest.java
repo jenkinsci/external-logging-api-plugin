@@ -17,15 +17,16 @@ import org.jvnet.hudson.test.JenkinsRule;
 public class PipelineSmokeTest {
 
     @Rule
-    public JenkinsRule j = new JenkinsRule();
-
-    @Rule
     public DockerRule<ElasticsearchContainer> esContainer = new DockerRule<ElasticsearchContainer>(ElasticsearchContainer.class);
     private ElasticsearchContainer container;
+
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
     @Before
     public void setup() throws Exception {
         container = esContainer.get();
+        container.waitForInit(30000);
         container.configureJenkins(j);
     }
 
