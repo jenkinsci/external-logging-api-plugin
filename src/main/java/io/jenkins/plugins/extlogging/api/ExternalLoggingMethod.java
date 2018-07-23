@@ -71,6 +71,12 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         return new LoggingThroughMasterOutputStreamWrapper(createOutputStream());
     }
 
+    /**
+     * Produces an event writer for the object.
+     * This writer is always serializable, so that it can be used on recipient and sender sides.
+     * @return Event writer
+     */
+    @Nonnull
     public final ExternalLoggingEventWriter createWriter() {
         ExternalLoggingEventWriter writer = _createWriter();
         // Produce universal metadata
@@ -81,6 +87,11 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         return writer;
     }
 
+    /**
+     * Produces a base event writer for the object.
+     * This method will be used by {@link #createWriter()}.
+     * @return Event writer
+     */
     @Nonnull
     protected abstract ExternalLoggingEventWriter _createWriter();
 
