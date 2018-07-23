@@ -1,6 +1,8 @@
 package io.jenkins.plugins.extlogging.api;
 
+import hudson.Launcher;
 import hudson.console.ConsoleLogFilter;
+import hudson.model.Node;
 import hudson.model.Run;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,7 +12,9 @@ import java.util.List;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingLauncher;
 import io.jenkins.plugins.extlogging.api.impl.LoggingThroughMasterOutputStreamWrapper;
+import jenkins.model.Jenkins;
 import jenkins.model.logging.Loggable;
 import jenkins.model.logging.LoggingMethod;
 
@@ -28,7 +32,7 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         super(loggable);
     }
 
-    //TODO: imple
+    //TODO: implement
     @CheckForNull
     @Override
     public TaskListener createTaskListener() {
@@ -57,9 +61,10 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         return ExternalLoggingOutputStream.createOutputStream(writer, sensitiveStrings);
     }
 
+    //TODO: document null
     /**
      * Creates Remotable wrapper.
-     * By default, logging happens through master unless there is a custom implementation.
+     * By default, logging happens through master unless there is a custom implementation defined.
      * @return Remotable wrapper
      */
     @CheckForNull
@@ -72,12 +77,35 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
 
     public abstract OutputStream decorateLogger(OutputStream logger);
 
+    @Nonnull
     @Override
+    public Launcher decorateLauncher(@Nonnull Launcher original,
+                                     @Nonnull Run<?,?> run, @Nonnull Node node) {
+        if (node instanceof Jenkins) {
+            return new ExternalLoggingLauncher.DefaultLocalLauncher(original);
+        } else {
+            return new ExternalLoggingLauncher.DefaultRemoteLauncher(original, this);
+        }
+    }
+
+    /**
+     * Produces logging engine for STDOUT.
+     * It will be used in the {@link ExternalLoggingLauncher}
+     * @return Wrapper to be used.
+     *         {@code null} will make the wrapper to use the default stream
+     */
+    @CheckForNull
     public OutputStreamWrapper provideRemotableOutStream() {
         return createWrapper();
     }
 
-    @Override
+    /*
+     * Produces logging engine for STDERR.
+     * It will be used in the {@link ExternalLoggingLauncher}
+     * @return Wrapper to be used.
+     *         {@code null} will make the wrapper to use the default stream
+     */
+    @CheckForNull
     public OutputStreamWrapper provideRemotableErrStream() {
         return createWrapper();
     }
