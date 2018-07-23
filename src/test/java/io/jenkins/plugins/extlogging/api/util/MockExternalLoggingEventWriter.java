@@ -6,19 +6,19 @@ import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Mock {@link ExternalLoggingEventWriter} for testing purposes.
  * @author Oleg Nenashev
- * @since TODO
+ * @see MockLoggingMethod
  */
 public class MockExternalLoggingEventWriter extends ExternalLoggingEventWriter {
 
     private static final Logger LOGGER =
             Logger.getLogger(MockExternalLoggingEventWriter.class.getName());
 
-    public File dest;
+    private final File dest;
 
     // Debug flags
     private boolean eventWritten;

@@ -72,8 +72,6 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
 
     public abstract ExternalLoggingEventWriter createWriter();
 
-    public abstract OutputStream decorateLogger(OutputStream logger);
-
     @Nonnull
     @Override
     public Launcher decorateLauncher(@Nonnull Launcher original,

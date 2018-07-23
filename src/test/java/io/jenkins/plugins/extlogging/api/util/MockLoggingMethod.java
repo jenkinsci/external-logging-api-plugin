@@ -7,12 +7,11 @@ import jenkins.model.logging.LogBrowser;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
+ * Mock logging method for testing purposes
  * @author Oleg Nenashev
- * @since TODO
+ * @see MockExternalLoggingEventWriter
  */
 public class MockLoggingMethod extends ExternalLoggingMethod {
 
@@ -40,12 +39,6 @@ public class MockLoggingMethod extends ExternalLoggingMethod {
         return writer;
     }
 
-    @Override
-    public OutputStream decorateLogger(OutputStream logger) {
-        return logger;
-    }
-
-    @CheckForNull
     @Override
     public LogBrowser getDefaultLogBrowser() {
         return new MockLogBrowser(getOwner(), baseDir);
