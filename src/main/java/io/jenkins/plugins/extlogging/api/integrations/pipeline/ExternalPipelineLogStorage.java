@@ -90,7 +90,6 @@ public class ExternalPipelineLogStorage implements LogStorage {
         return logBrowser.stepLog(flowNode.getId(), completed);
     }
 
-
     private static class PipelineListener implements BuildListener {
 
         private static final long serialVersionUID = 1;
@@ -102,7 +101,6 @@ public class ExternalPipelineLogStorage implements LogStorage {
         PipelineListener(WorkflowRun run, ExternalLoggingMethod method) {
             this.writer = method.createWriter();
             this.sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings(run);
-            writer.addMetadataEntry("jobId", UniqueIdHelper.getOrCreateId(run.getParent()));
         }
 
         PipelineListener(WorkflowRun run, FlowNode node, ExternalLoggingMethod method) {

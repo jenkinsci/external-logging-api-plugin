@@ -15,6 +15,7 @@ import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingLauncher;
 import io.jenkins.plugins.extlogging.api.impl.LoggingThroughMasterOutputStreamWrapper;
+import io.jenkins.plugins.extlogging.api.util.UniqueIdHelper;
 import jenkins.model.Jenkins;
 import jenkins.model.logging.Loggable;
 import jenkins.model.logging.LoggingMethod;
@@ -70,7 +71,18 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         return new LoggingThroughMasterOutputStreamWrapper(createOutputStream());
     }
 
-    public abstract ExternalLoggingEventWriter createWriter();
+    public final ExternalLoggingEventWriter createWriter() {
+        ExternalLoggingEventWriter writer = _createWriter();
+        // Produce universal metadata
+        if (loggable instanceof Run<?, ?>) {
+            Run<?, ?> run = (Run<?, ?>) loggable;
+            writer.addMetadataEntry("jobId", UniqueIdHelper.getOrCreateId(run.getParent()));
+        }
+        return writer;
+    }
+
+    @Nonnull
+    protected abstract ExternalLoggingEventWriter _createWriter();
 
     @Nonnull
     @Override
