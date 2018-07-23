@@ -58,7 +58,7 @@ plugins:
   - groupId: "org.jenkins-ci.plugins"
     artifactId: "logstash"
     source:
-      version: 2.1.0
+      version: 2.1.1-SNAPSHOT
   - groupId: "io.jenkins.plugins.external-logging"
     artifactId: "external-logging-api"
     source:

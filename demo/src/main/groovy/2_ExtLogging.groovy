@@ -2,8 +2,8 @@ import jenkins.plugins.logstash.LogstashInstallation
 import jenkins.plugins.logstash.LogstashConfiguration
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration
-import io.jenkins.plugins.extlogging.logstash.LogstashDaoLoggingMethod
-import io.jenkins.plugins.extlogging.elasticsearch.ElasticsearchLogBrowser
+import io.jenkins.plugins.extlogging.logstash.LogstashDaoLoggingMethodFactory
+import io.jenkins.plugins.extlogging.elasticsearch.ElasticsearchLogBrowserFactory
 
 println("--- Configuring Logstash")
 String logstashPort = System.getProperty("elasticsearch.port");
@@ -22,5 +22,5 @@ LogstashConfiguration.instance.@dataMigrated = false
 LogstashConfiguration.instance.migrateData()
 
 println("--- Configuring External Logging")
-ExternalLoggingGlobalConfiguration.instance.loggingMethod = new LogstashDaoLoggingMethod()
-ExternalLoggingGlobalConfiguration.instance.logBrowser = new ElasticsearchLogBrowser()
+ExternalLoggingGlobalConfiguration.instance.loggingMethod = new LogstashDaoLoggingMethodFactory()
+ExternalLoggingGlobalConfiguration.instance.logBrowser = new ElasticsearchLogBrowserFactory()

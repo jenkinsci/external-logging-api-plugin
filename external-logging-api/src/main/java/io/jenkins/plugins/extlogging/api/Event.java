@@ -12,16 +12,18 @@ public class Event {
 
     final String message;
     final long timestamp;
+    final long id;
 
     Map<String, Object> data = new HashMap<>();
 
-    public Event(String message) {
-        this(message, System.currentTimeMillis());
-    }
-
-    public Event(String message, long timestamp) {
+    public Event(long id, String message, long timestamp) {
+        this.id = id;
         this.message = message;
         this.timestamp = timestamp;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getMessage() {

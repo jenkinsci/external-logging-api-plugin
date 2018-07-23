@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Oleg Nenashev
@@ -15,11 +16,12 @@ import java.util.Map;
 public abstract class ExternalLoggingEventWriter extends Writer implements Serializable {
 
     Map<String, Object> metadata = new HashMap<>();
+    AtomicLong messageCounter = new AtomicLong();
 
     public abstract void writeEvent(Event event) throws IOException;
 
     public void writeMessage(String message) throws IOException {
-        Event event = new Event(message);
+        Event event = new Event(messageCounter.getAndIncrement(), message, System.currentTimeMillis());
         event.setData(metadata); // We do not copy the entry to save performance, custom implementations may need better logic
         writeEvent(event);
     }
