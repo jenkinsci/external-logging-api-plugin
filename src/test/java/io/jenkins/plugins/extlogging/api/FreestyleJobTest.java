@@ -40,9 +40,7 @@ public class FreestyleJobTest {
         j.assertLogContains("hello", build);
     }
 
-    //TODO: implementation issues
     @Test
-    @Ignore
     public void spotcheck_Mock() throws Exception {
         MockLoggingTestUtil.setup(tmpDir);
         FreeStyleProject project = j.createFreeStyleProject();

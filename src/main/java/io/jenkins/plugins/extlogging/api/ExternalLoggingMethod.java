@@ -1,15 +1,16 @@
 package io.jenkins.plugins.extlogging.api;
 
 import hudson.Launcher;
-import hudson.console.ConsoleLogFilter;
+import hudson.model.BuildListener;
 import hudson.model.Node;
 import hudson.model.Run;
-import java.io.IOException;
+
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
 import hudson.model.TaskListener;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingBuildListener;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingLauncher;
@@ -39,17 +40,13 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
         return null;
     }
 
+    // TODO: Implement event-based logic instead of the
     @Override
-    public ConsoleLogFilter createLoggerDecorator() {
-        return new ConsoleLogFilter() {
-            @Override
-            public OutputStream decorateLogger(Run run, OutputStream logger) throws IOException, InterruptedException {
-                return ExternalLoggingMethod.this.decorateLogger(logger);
-            }
-        };
+    public BuildListener createBuildListener() {
+        return new ExternalLoggingBuildListener(createWriter());
     }
 
-    private final OutputStream createOutputStream() {
+    public final OutputStream createOutputStream() {
         final ExternalLoggingEventWriter writer = createWriter();
 
         final List<String> sensitiveStrings;

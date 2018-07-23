@@ -25,7 +25,7 @@ public class DisabledExternalLoggingMethodFactory extends ExternalLoggingMethodF
     }
 
     @Extension(ordinal = Float.MAX_VALUE)
-    @Symbol("logstash")
+    @Symbol("disabled")
     public static final class DescriptorImpl extends ExternalLoggingMethodFactoryDescriptor {
 
         @Override
