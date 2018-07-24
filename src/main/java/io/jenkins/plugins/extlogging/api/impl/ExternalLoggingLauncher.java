@@ -44,7 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Provides {@link Launcher} implementations for External Logging.
+ * These implementations plug-in {@link ExternalLoggingMethod} into the on-agent executions.
  * @author Oleg Nenashev
  */
 @Restricted(Beta.class)

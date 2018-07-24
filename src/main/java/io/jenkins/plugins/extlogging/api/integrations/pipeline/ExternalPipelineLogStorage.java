@@ -28,11 +28,10 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
-import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
+import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.SensitiveStringsProvider;
-import io.jenkins.plugins.extlogging.api.util.UniqueIdHelper;
 import jenkins.model.logging.LogBrowser;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
@@ -43,7 +42,6 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 

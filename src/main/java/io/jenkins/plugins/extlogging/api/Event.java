@@ -1,10 +1,11 @@
 package io.jenkins.plugins.extlogging.api;
 
-import javax.annotation.CheckForNull;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Stores events which can be sent over the channel.
  * @author Oleg Nenashev
  * @since TODO
  */
@@ -14,7 +15,7 @@ public class Event {
     final long timestamp;
     final long id;
 
-    Map<String, Object> data = new HashMap<>();
+    Map<String, Serializable> data = new HashMap<>();
 
     public Event(long id, String message, long timestamp) {
         this.id = id;
@@ -34,7 +35,7 @@ public class Event {
         return timestamp;
     }
 
-    public Map<String, Object> getData() {
+    public Map<String, Serializable> getData() {
         return data;
     }
 
@@ -43,7 +44,7 @@ public class Event {
         return String.format("[%d] - %s", timestamp, message);
     }
 
-    public void setData(Map<String, Object> data) {
+    public void setData(Map<String, Serializable> data) {
         this.data = data;
     }
 

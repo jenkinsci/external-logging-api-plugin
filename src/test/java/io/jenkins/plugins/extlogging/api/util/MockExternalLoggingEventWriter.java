@@ -1,7 +1,7 @@
 package io.jenkins.plugins.extlogging.api.util;
 
 import io.jenkins.plugins.extlogging.api.Event;
-import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
+import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 
 import java.io.File;
 import java.io.FileWriter;

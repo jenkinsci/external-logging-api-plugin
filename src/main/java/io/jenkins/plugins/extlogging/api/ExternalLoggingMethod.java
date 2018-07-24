@@ -11,7 +11,6 @@ import java.util.List;
 
 import hudson.model.TaskListener;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingBuildListener;
-import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingLauncher;
 import io.jenkins.plugins.extlogging.api.impl.LoggingThroughMasterOutputStreamWrapper;

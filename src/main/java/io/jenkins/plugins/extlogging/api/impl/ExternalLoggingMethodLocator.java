@@ -11,8 +11,9 @@ import jenkins.model.logging.LoggingMethodLocator;
 import javax.annotation.CheckForNull;
 
 /**
+ * Locator which provides logging nethods and browsers from {@link ExternalLoggingGlobalConfiguration}.
  * @author Oleg Nenashev
- * @since TODO
+ * @see ExternalLoggingGlobalConfiguration
  */
 @Extension
 public class ExternalLoggingMethodLocator extends LoggingMethodLocator {

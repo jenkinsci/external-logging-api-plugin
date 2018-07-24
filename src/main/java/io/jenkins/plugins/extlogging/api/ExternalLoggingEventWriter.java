@@ -1,6 +1,4 @@
-package io.jenkins.plugins.extlogging.api.impl;
-
-import io.jenkins.plugins.extlogging.api.Event;
+package io.jenkins.plugins.extlogging.api;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,12 +8,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * Implements logging of events
  * @author Oleg Nenashev
  * @since TODO
  */
 public abstract class ExternalLoggingEventWriter extends Writer implements Serializable {
 
-    Map<String, Object> metadata = new HashMap<>();
+    Map<String, Serializable> metadata = new HashMap<>();
     AtomicLong messageCounter = new AtomicLong();
 
     public abstract void writeEvent(Event event) throws IOException;
@@ -26,7 +25,7 @@ public abstract class ExternalLoggingEventWriter extends Writer implements Seria
         writeEvent(event);
     }
 
-    public void addMetadataEntry(String key, Object value) {
+    public void addMetadataEntry(String key, Serializable value) {
         metadata.put(key, value);
     }
 

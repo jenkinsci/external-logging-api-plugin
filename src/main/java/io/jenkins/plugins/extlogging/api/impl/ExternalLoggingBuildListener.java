@@ -1,8 +1,8 @@
 package io.jenkins.plugins.extlogging.api.impl;
 
 import hudson.model.BuildListener;
+import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 
-import javax.annotation.Nonnull;
 import java.io.PrintStream;
 
 /**

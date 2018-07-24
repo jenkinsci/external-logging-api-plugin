@@ -1,6 +1,7 @@
 package io.jenkins.plugins.extlogging.api.impl;
 
 import hudson.console.LineTransformationOutputStream;
+import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MaskSecretsOutputStream;
 
 import java.io.IOException;
