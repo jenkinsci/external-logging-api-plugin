@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 CloudBees, Inc.
+ * Copyright 2016-2018 CloudBees, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -96,12 +96,12 @@ public class ExternalPipelineLogStorage implements LogStorage {
         private final ExternalLoggingEventWriter writer;
         private transient PrintStream logger;
 
-        PipelineListener(WorkflowRun run, ExternalLoggingMethod method) {
+        PipelineListener(WorkflowRun run, ExternalLoggingMethod method) throws IOException, InterruptedException {
             this.writer = method.createWriter();
             this.sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings(run);
         }
 
-        PipelineListener(WorkflowRun run, FlowNode node, ExternalLoggingMethod method) {
+        PipelineListener(WorkflowRun run, FlowNode node, ExternalLoggingMethod method) throws IOException, InterruptedException {
             this(run, method);
             writer.addMetadataEntry("stepId", node.getId());
         }

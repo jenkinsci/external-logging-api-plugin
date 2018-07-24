@@ -74,8 +74,13 @@ public class ExternalLoggingLauncher {
 
         @Override
         public Proc launch(Launcher.ProcStarter ps) throws IOException {
-            final OutputStreamWrapper streamOut = loggingMethod.provideRemotableOutStream();
-            final OutputStreamWrapper streamErr = loggingMethod.provideRemotableErrStream();
+            final OutputStreamWrapper streamOut, streamErr;
+            try {
+                streamOut = loggingMethod.provideRemotableOutStream();
+                streamErr = loggingMethod.provideRemotableErrStream();
+            } catch (InterruptedException ex) {
+                throw new IOException(ex);
+            }
 
             // RemoteLogstashReporterStream(new CloseProofOutputStream(ps.stdout()
             final OutputStream out = ps.stdout() == null ? null : (streamOut == null ? ps.stdout() : streamOut.toSerializableOutputStream());
@@ -137,7 +142,7 @@ public class ExternalLoggingLauncher {
                             // make sure I/O is delivered to the remote before we return
                             try {
                                 Channel.current().syncIO();
-                            } catch (Throwable _) {
+                            } catch (Throwable th) {
                                 // this includes a failure to sync, slave.jar too old, etc
                             }
                         }

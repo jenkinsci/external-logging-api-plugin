@@ -5,6 +5,7 @@ import hudson.model.BuildListener;
 import hudson.model.Node;
 import hudson.model.Run;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
@@ -42,11 +43,11 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
 
     // TODO: Implement event-based logic instead of the
     @Override
-    public BuildListener createBuildListener() {
+    public BuildListener createBuildListener() throws IOException, InterruptedException {
         return new ExternalLoggingBuildListener(createWriter());
     }
 
-    public final OutputStream createOutputStream() {
+    public final OutputStream createOutputStream() throws IOException, InterruptedException {
         final ExternalLoggingEventWriter writer = createWriter();
 
         final List<String> sensitiveStrings;
@@ -65,7 +66,7 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
      * @return Remotable wrapper
      */
     @CheckForNull
-    public OutputStreamWrapper createWrapper() {
+    public OutputStreamWrapper createWrapper() throws IOException, InterruptedException {
         //TODO: capture agent in API to allow overrides with checks
         return new LoggingThroughMasterOutputStreamWrapper(createOutputStream());
     }
@@ -76,11 +77,13 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
      * @return Event writer
      */
     @Nonnull
-    public final ExternalLoggingEventWriter createWriter() {
+    public final ExternalLoggingEventWriter createWriter() throws IOException, InterruptedException {
         ExternalLoggingEventWriter writer = _createWriter();
         // Produce universal metadata
+        writer.addMetadataEntry("jenkinsUrl", Jenkins.get().getRootUrl());
         if (loggable instanceof Run<?, ?>) {
             Run<?, ?> run = (Run<?, ?>) loggable;
+            writer.addMetadataEntry("buildNum", run.getNumber());
             writer.addMetadataEntry("jobId", UniqueIdHelper.getOrCreateId(run.getParent()));
         }
         return writer;
@@ -92,7 +95,7 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
      * @return Event writer
      */
     @Nonnull
-    protected abstract ExternalLoggingEventWriter _createWriter();
+    protected abstract ExternalLoggingEventWriter _createWriter() throws IOException, InterruptedException;
 
     @Nonnull
     @Override
@@ -112,7 +115,7 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
      *         {@code null} will make the wrapper to use the default stream
      */
     @CheckForNull
-    public OutputStreamWrapper provideRemotableOutStream() {
+    public OutputStreamWrapper provideRemotableOutStream() throws IOException, InterruptedException {
         return createWrapper();
     }
 
@@ -123,7 +126,7 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
      *         {@code null} will make the wrapper to use the default stream
      */
     @CheckForNull
-    public OutputStreamWrapper provideRemotableErrStream() {
+    public OutputStreamWrapper provideRemotableErrStream() throws IOException, InterruptedException {
         return createWrapper();
     }
 
