@@ -20,9 +20,8 @@
   <properties>
     <revision>1.0-alpha-1</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.131-SNAPSHOT</jenkins.version>
+    <jenkins.version>2.135-rc15088.42aa6febbbed</jenkins.version>
     <java.level>8</java.level>
-    <workflow-api-plugin.version>2.28-rc337.8abe7c5204d9</workflow-api-plugin.version> <!-- TODO https://github.com/jenkinsci/workflow-api-plugin/pull/67 -->
     <useBeta>true</useBeta>
   </properties>
   
