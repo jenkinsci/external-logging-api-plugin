@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+//TODO: jglick is concerned about the event-based logic, maybe we should add a lower-level implementation
+//TODO: jglick: "Why do we need events?" in JEP
 /**
  * Implements logging of events
  * @author Oleg Nenashev
@@ -25,6 +27,7 @@ public abstract class ExternalLoggingEventWriter extends Writer implements Seria
         writeEvent(event);
     }
 
+    //TODO(oleg-nenashev): jglick requests example of complex event
     public void addMetadataEntry(String key, Serializable value) {
         metadata.put(key, value);
     }
