@@ -53,8 +53,8 @@ public class ExternalPipelineLogStorageFactory implements LogStorageFactory {
             return null;
         }
 
-        final LoggingMethod loggingMethod = LoggingMethodLocator.locate(run);
-        final LogBrowser browser = LoggingMethodLocator.locateBrowser(run);
+        final LoggingMethod loggingMethod = run.getLoggingMethod();
+        final LogBrowser browser = run.getLogBrowser();
 
         if (loggingMethod instanceof ExternalLoggingMethod) {
             return new ExternalPipelineLogStorage(run,
