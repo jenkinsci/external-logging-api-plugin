@@ -20,7 +20,9 @@
   <properties>
     <revision>1.0-alpha-1</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.135-rc15088.42aa6febbbed</jenkins.version>
+    <!--TODO: replace by incrementals -->
+    <jenkins-core.version>2.136-20180803.111049-1</jenkins-core.version>
+    <jenkins-war.version>2.136-20180803.111113-1</jenkins-war.version>
     <java.level>8</java.level>
     <useBeta>true</useBeta>
   </properties>
