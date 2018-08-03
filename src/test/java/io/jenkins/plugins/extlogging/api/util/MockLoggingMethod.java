@@ -30,7 +30,9 @@ public class MockLoggingMethod extends ExternalLoggingMethod {
 
     @Override
     public ExternalLoggingEventWriter _createWriter() {
-        writer = new MockExternalLoggingEventWriter(new File(baseDir, getOwner().getFullDisplayName() + ".txt"));
+        writer = new MockExternalLoggingEventWriter(new File(baseDir,
+                getOwner().getFullDisplayName() + ".txt"),
+                loggable.getCharset());
         return writer;
     }
 

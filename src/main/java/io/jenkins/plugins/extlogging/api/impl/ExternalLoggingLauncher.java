@@ -23,11 +23,13 @@
  */
 package io.jenkins.plugins.extlogging.api.impl;
 
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.model.TaskListener;
 import hudson.remoting.Channel;
 import hudson.remoting.RemoteInputStream;
+import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.OutputStreamWrapper;
 import jenkins.model.logging.LoggingMethod;
@@ -43,6 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO: Likely YAGNI in the current implementation
 /**
  * Provides {@link Launcher} implementations for External Logging.
  * These implementations plug-in {@link ExternalLoggingMethod} into the on-agent executions.
@@ -85,16 +88,22 @@ public class ExternalLoggingLauncher {
             // RemoteLogstashReporterStream(new CloseProofOutputStream(ps.stdout()
             final OutputStream out = ps.stdout() == null ? null : (streamOut == null ? ps.stdout() : streamOut.toSerializableOutputStream());
             final OutputStream err = ps.stdout() == null ? null : (streamErr == null ? ps.stdout() : streamErr.toSerializableOutputStream());
-            final InputStream in = (ps.stdin() == null || ps.stdin() == NULL_INPUT_STREAM) ? null : new RemoteInputStream(ps.stdin(), false);
-            final String workDir = ps.pwd() == null ? null : ps.pwd().getRemote();
+            final InputStream in = (ps.stdin() == null || ps.stdin() == NULL_INPUT_STREAM)
+                    ? null : new RemoteInputStream(ps.stdin(), false);
+
+            final FilePath pwd = ps.pwd();
+            final String workDir = pwd == null ? null : pwd.getRemote();
 
             // TODO: we do not reverse streams => the parameters
             try {
                 final RemoteLaunchCallable callable = new RemoteLaunchCallable(
                     ps.cmds(), ps.masks(), ps.envs(), in,
                     out, err, ps.quiet(), workDir, listener);
-
-                return new Launcher.RemoteLauncher.ProcImpl(getChannel().call(callable));
+                final VirtualChannel channel = getChannel();
+                if (channel == null) {
+                    throw new IOException("Channel is null");
+                }
+                return new Launcher.RemoteLauncher.ProcImpl(channel.call(callable));
             } catch (InterruptedException e) {
                 throw (IOException) new InterruptedIOException().initCause(e);
             }
@@ -134,14 +143,14 @@ public class ExternalLoggingLauncher {
 
                 final Proc p = ps.start();
 
-                return Channel.current().export(Launcher.RemoteProcess.class, new Launcher.RemoteProcess() {
+                return Channel.currentOrFail().export(Launcher.RemoteProcess.class, new Launcher.RemoteProcess() {
                     public int join() throws InterruptedException, IOException {
                         try {
                             return p.join();
                         } finally {
                             // make sure I/O is delivered to the remote before we return
                             try {
-                                Channel.current().syncIO();
+                                Channel.currentOrFail().syncIO();
                             } catch (Throwable th) {
                                 // this includes a failure to sync, slave.jar too old, etc
                             }

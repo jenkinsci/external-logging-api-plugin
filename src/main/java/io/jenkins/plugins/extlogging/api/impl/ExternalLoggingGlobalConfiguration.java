@@ -1,5 +1,6 @@
 package io.jenkins.plugins.extlogging.api.impl;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import io.jenkins.plugins.extlogging.api.ExternalLogBrowserFactory;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethodFactory;
@@ -28,6 +29,8 @@ public class ExternalLoggingGlobalConfiguration extends GlobalConfiguration {
     private ExternalLogBrowserFactory logBrowser;
 
     @Nonnull
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+                        justification = "Findbugs does not handle asserts right")
     public static ExternalLoggingGlobalConfiguration getInstance() {
         ExternalLoggingGlobalConfiguration cfg = GlobalConfiguration.all().get(ExternalLoggingGlobalConfiguration.class);
         assert cfg != null : "Global configuration should be present";

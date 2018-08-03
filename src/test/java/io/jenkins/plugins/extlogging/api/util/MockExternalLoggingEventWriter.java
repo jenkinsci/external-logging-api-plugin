@@ -6,6 +6,7 @@ import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 /**
@@ -23,7 +24,8 @@ public class MockExternalLoggingEventWriter extends ExternalLoggingEventWriter {
     // Debug flags
     private boolean eventWritten;
 
-    public MockExternalLoggingEventWriter(File dest) {
+    public MockExternalLoggingEventWriter(File dest, Charset charset) {
+        super(charset);
         this.dest = dest;
     }
 

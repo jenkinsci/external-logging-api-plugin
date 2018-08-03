@@ -1,8 +1,15 @@
 package io.jenkins.plugins.extlogging.api;
 
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,8 +23,16 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public abstract class ExternalLoggingEventWriter extends Writer implements Serializable {
 
+    String charset;
     Map<String, Serializable> metadata = new HashMap<>();
     AtomicLong messageCounter = new AtomicLong();
+
+    @CheckForNull
+    private transient PrintStream printStream;
+
+    public ExternalLoggingEventWriter(@Nonnull Charset charset) {
+        this.charset = charset.name();
+    }
 
     public abstract void writeEvent(Event event) throws IOException;
 
@@ -40,11 +55,24 @@ public abstract class ExternalLoggingEventWriter extends Writer implements Seria
 
     @Override
     public void close() throws IOException {
-        // noop
+        // noop by default
     }
 
     @Override
     public void flush() throws IOException {
-        // noop
+        if (printStream != null) {
+            printStream.flush();
+        }
+    }
+
+    public Charset getCharset() {
+        return Charset.forName(charset);
+    }
+
+    public PrintStream getLogger() throws UnsupportedEncodingException {
+        if (printStream == null) {
+            printStream = new PrintStream(new ExternalLoggingOutputStream(this), true, charset);
+        }
+        return printStream;
     }
 }

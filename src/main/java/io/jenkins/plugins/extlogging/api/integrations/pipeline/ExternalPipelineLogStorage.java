@@ -28,9 +28,8 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
-import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
-import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingOutputStream;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingBuildListener;
 import io.jenkins.plugins.extlogging.api.SensitiveStringsProvider;
 import jenkins.model.logging.LogBrowser;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -40,7 +39,6 @@ import org.jenkinsci.plugins.workflow.log.LogStorage;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -88,30 +86,21 @@ public class ExternalPipelineLogStorage implements LogStorage {
         return logBrowser.stepLog(flowNode.getId(), completed);
     }
 
-    private static class PipelineListener implements BuildListener {
+    private static class PipelineListener extends ExternalLoggingBuildListener {
 
         private static final long serialVersionUID = 1;
 
+        //TODO: unused, remove?
         private final Collection<String> sensitiveStrings;
-        private final ExternalLoggingEventWriter writer;
-        private transient PrintStream logger;
 
         PipelineListener(WorkflowRun run, ExternalLoggingMethod method) throws IOException, InterruptedException {
-            this.writer = method.createWriter();
+            super(method.createWriter());
             this.sensitiveStrings = SensitiveStringsProvider.getAllSensitiveStrings(run);
         }
 
         PipelineListener(WorkflowRun run, FlowNode node, ExternalLoggingMethod method) throws IOException, InterruptedException {
             this(run, method);
             writer.addMetadataEntry("stepId", node.getId());
-        }
-
-        @Override
-        public PrintStream getLogger() {
-            if (logger == null) {
-                logger = new PrintStream(ExternalLoggingOutputStream.createOutputStream(writer, sensitiveStrings));
-            }
-            return logger;
         }
 
     }
