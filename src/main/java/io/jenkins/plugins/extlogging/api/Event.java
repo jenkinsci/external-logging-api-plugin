@@ -15,6 +15,7 @@ public class Event {
     final long timestamp;
     final long id;
 
+    //TODO:Consider <String,String> so that Key-Value storages could be quickly implemented
     Map<String, Serializable> data = new HashMap<>();
 
     public Event(long id, String message, long timestamp) {
