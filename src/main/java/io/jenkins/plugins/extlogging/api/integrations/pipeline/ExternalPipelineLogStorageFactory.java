@@ -3,11 +3,8 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.Run;
-import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLogStorage;
 import io.jenkins.plugins.extlogging.api.integrations.MaskPasswordsSensitiveStringsProvider.MaskSensitiveStringsProvider;
-import jenkins.model.logging.LogBrowser;
-import jenkins.model.logging.LoggingMethod;
-import jenkins.model.logging.LoggingMethodLocator;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.log.LogStorage;
@@ -53,13 +50,12 @@ public class ExternalPipelineLogStorageFactory implements LogStorageFactory {
             return null;
         }
 
-        final LoggingMethod loggingMethod = run.getLoggingMethod();
-        final LogBrowser browser = run.getLogBrowser();
-
-        if (loggingMethod instanceof ExternalLoggingMethod) {
+        jenkins.model.logging.LogStorage logStorage = run.getLogStorage();
+        if (logStorage instanceof ExternalLogStorage) {
+            ExternalLogStorage extLogStorage = (ExternalLogStorage)logStorage;
             return new ExternalPipelineLogStorage(run,
-                    (ExternalLoggingMethod) loggingMethod,
-                    browser);
+                    extLogStorage.getReporter(),
+                    extLogStorage.getBrowser());
         }
 
         return null;

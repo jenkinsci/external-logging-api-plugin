@@ -18,7 +18,6 @@ import io.jenkins.plugins.extlogging.api.impl.LoggingThroughMasterOutputStreamWr
 import io.jenkins.plugins.extlogging.api.util.UniqueIdHelper;
 import jenkins.model.Jenkins;
 import jenkins.model.logging.Loggable;
-import jenkins.model.logging.LoggingMethod;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -28,21 +27,29 @@ import javax.annotation.Nonnull;
  * @author Oleg Nenashev
  * @since TODO
  */
-public abstract class ExternalLoggingMethod extends LoggingMethod {
+public abstract class ExternalLoggingMethod<TLoggable extends Loggable> extends LoggableHandler {
 
     public ExternalLoggingMethod(@Nonnull Loggable loggable) {
         super(loggable);
     }
 
+    /**
+     * Gets default Log browser which should be used with this Logging method.
+     * It allows setting a custom default LogBrowser if needed.
+     * @return Log browser or {@code null} if not defined.
+     */
+    @CheckForNull
+    public ExternalLogBrowser<TLoggable> getDefaultLogBrowser() {
+        return null;
+    }
+
     //TODO: implement
     @CheckForNull
-    @Override
     public TaskListener createTaskListener() {
         return null;
     }
 
     // TODO: Implement event-based logic instead of the
-    @Override
     public BuildListener createBuildListener() throws IOException, InterruptedException {
         return new ExternalLoggingBuildListener(createWriter());
     }
@@ -98,7 +105,6 @@ public abstract class ExternalLoggingMethod extends LoggingMethod {
     protected abstract ExternalLoggingEventWriter _createWriter() throws IOException, InterruptedException;
 
     @Nonnull
-    @Override
     public Launcher decorateLauncher(@Nonnull Launcher original,
                                      @Nonnull Run<?,?> run, @Nonnull Node node) {
         if (node instanceof Jenkins) {

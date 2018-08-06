@@ -3,6 +3,7 @@ package io.jenkins.plugins.extlogging.api;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.Shell;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLogStorage;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration;
 import io.jenkins.plugins.extlogging.api.util.MockExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowserFactory;
@@ -18,6 +19,9 @@ import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.File;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Oleg Nenashev
@@ -47,7 +51,9 @@ public class FreestyleJobTest {
         project.getBuildersList().add(new Shell("echo hello"));
 
         FreeStyleBuild build = j.buildAndAssertSuccess(project);
-        MockLoggingMethod lm = (MockLoggingMethod)build.getLoggingMethod();
+        assertThat(build.getLogStorage(), instanceOf(ExternalLogStorage.class));
+        ExternalLogStorage storage = (ExternalLogStorage) build.getLogStorage();
+        MockLoggingMethod lm = (MockLoggingMethod)storage.getReporter();
         MockExternalLoggingEventWriter writer = lm.getWriter();
         Assert.assertTrue(writer.isEventWritten());
         j.assertLogContains("hello", build);

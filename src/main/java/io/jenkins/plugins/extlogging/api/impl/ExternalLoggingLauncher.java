@@ -32,7 +32,6 @@ import hudson.remoting.RemoteInputStream;
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.OutputStreamWrapper;
-import jenkins.model.logging.LoggingMethod;
 import jenkins.security.MasterToSlaveCallable;
 import org.apache.commons.io.input.NullInputStream;
 import org.kohsuke.accmod.Restricted;
@@ -64,7 +63,7 @@ public class ExternalLoggingLauncher {
     }
 
     /**
-     * Default remote launcher which redirects all the output and error to the stream {@link LoggingMethod} provides.
+     * Default remote launcher which redirects all the output and error to the stream {@link ExternalLoggingMethod} provides.
      */
     public static class DefaultRemoteLauncher extends Launcher.DecoratedLauncher {
         private static final NullInputStream NULL_INPUT_STREAM = new NullInputStream(0);

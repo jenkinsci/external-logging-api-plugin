@@ -28,10 +28,10 @@ package io.jenkins.plugins.extlogging.api.integrations.pipeline;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingMethod;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingBuildListener;
 import io.jenkins.plugins.extlogging.api.SensitiveStringsProvider;
-import jenkins.model.logging.LogBrowser;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -52,10 +52,11 @@ public class ExternalPipelineLogStorage implements LogStorage {
             Logger.getLogger(ExternalPipelineLogStorage.class.getName());
 
     private final ExternalLoggingMethod lm;
-    private final LogBrowser logBrowser;
+    private final ExternalLogBrowser logBrowser;
     private final WorkflowRun run;
 
-    ExternalPipelineLogStorage(@Nonnull WorkflowRun run, @Nonnull ExternalLoggingMethod lm, @Nonnull LogBrowser browser) {
+    ExternalPipelineLogStorage(@Nonnull WorkflowRun run, @Nonnull ExternalLoggingMethod lm,
+                               @Nonnull ExternalLogBrowser browser) {
         this.run = run;
         this.lm = lm;
         this.logBrowser = browser;
