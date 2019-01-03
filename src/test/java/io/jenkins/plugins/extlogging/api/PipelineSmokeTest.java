@@ -1,6 +1,7 @@
 package io.jenkins.plugins.extlogging.api;
 
 import hudson.model.Run;
+import io.jenkins.plugins.extlogging.api.impl.ExternalLogStorage;
 import io.jenkins.plugins.extlogging.api.impl.ExternalLoggingGlobalConfiguration;
 import io.jenkins.plugins.extlogging.api.util.MockExternalLoggingEventWriter;
 import io.jenkins.plugins.extlogging.api.util.MockLogBrowser;
@@ -50,8 +51,10 @@ public class PipelineSmokeTest {
         project.setDefinition(new CpsFlowDefinition("echo 'Hello'", true));
 
         Run build = j.buildAndAssertSuccess(project);
-        assertThat(build.getLoggingMethod(), instanceOf(MockLoggingMethod.class));
-        MockLoggingMethod loggingMethod = (MockLoggingMethod)build.getLoggingMethod();
+        assertThat(build.getLogStorage(), instanceOf(ExternalLogStorage.class));
+        ExternalLogStorage storage = (ExternalLogStorage) build.getLogStorage();
+        assertThat(storage.getReporter(), instanceOf(MockLoggingMethod.class));
+        MockLoggingMethod loggingMethod = (MockLoggingMethod)storage.getReporter();
         MockExternalLoggingEventWriter writer = loggingMethod.getWriter();
         // Do not try to add it. Pipeline creates separate PipelineLogListeners for each call
         // Assert.assertTrue(writer.isEventWritten());

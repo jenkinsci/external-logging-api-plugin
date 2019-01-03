@@ -1,9 +1,9 @@
 package io.jenkins.plugins.extlogging.api.impl;
 
 import hudson.Extension;
+import io.jenkins.plugins.extlogging.api.ExternalLogBrowser;
 import io.jenkins.plugins.extlogging.api.ExternalLogBrowserFactory;
 import io.jenkins.plugins.extlogging.api.ExternalLogBrowserFactoryDescriptor;
-import jenkins.model.logging.LogBrowser;
 import jenkins.model.logging.Loggable;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -21,7 +21,7 @@ public class DisabledExternalLogBrowserFactory extends ExternalLogBrowserFactory
     }
 
     @Override
-    public LogBrowser create(Loggable loggable) {
+    public ExternalLogBrowser create(Loggable loggable) {
         return null;
     }
 

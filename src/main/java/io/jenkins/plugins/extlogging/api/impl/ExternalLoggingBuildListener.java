@@ -4,6 +4,7 @@ import hudson.model.BuildListener;
 import io.jenkins.plugins.extlogging.api.ExternalLoggingEventWriter;
 
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @author Oleg Nenashev
@@ -11,14 +12,19 @@ import java.io.PrintStream;
  */
 public class ExternalLoggingBuildListener implements BuildListener {
 
-    private final ExternalLoggingEventWriter writer;
+    protected final ExternalLoggingEventWriter writer;
 
     public ExternalLoggingBuildListener(ExternalLoggingEventWriter writer) {
         this.writer = writer;
     }
 
+    //TODO: do something better about it
     @Override
     public PrintStream getLogger() {
-        return new PrintStream(new ExternalLoggingOutputStream(writer));
+        try {
+            return writer.getLogger();
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
